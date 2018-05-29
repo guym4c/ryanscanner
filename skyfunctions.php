@@ -145,11 +145,11 @@ function parseSkyJson($data) {
 	foreach($data['Itineraries'] as $itin) {
 		$leg = getLeg($data, $itin['OutboundLegId']);
 		if(!count($leg['Stops'])) {
-			$carrier = getCarrier($data, $leg['Carriers'][0]);
+			$carrier = getSkyDatapoint($data['Carriers'], $leg['Carriers'][0]);
 			$code = $carrier['Code'] . $leg['FlightNumbers'][0]['FlightNumber'];
-			$agent = getAgent($data, $itin['PricingOptions'][0]['Agents'][0]);
-			$from = getPlace($data, $leg['OriginStation']);
-			$to = getPlace($data, $leg['DestinationStation']);
+			$agent = getSkyDatapoint($data['Agents'], $itin['PricingOptions'][0]['Agents'][0]);
+			$from = getSkyDatapoint($data['Places'], $leg['OriginStation']);
+			$to = getSkyDatapoint($data['Places'], $leg['DestinationStation']);
 			$flights[$code] = array(
 				'Depart'		=> $leg['Departure'],
 				'From'			=> $from['Name'] . " (" . $from['Code'] . ")",
@@ -172,48 +172,13 @@ function parseSkyJson($data) {
 	return $flights;
 }
 
-function getLeg($data, $legId) {
-	$result = "";
-	foreach($data['Legs'] as $leg) {
-		if($leg['Id'] == $legId) {
-			$result = $leg;
-			break;
+function getSkyDatapoint($data, $id) {
+	foreach($data as $datum) {
+		if($datum['Id'] == $id) {
+			return $datum;
 		}
 	}
-	return $result;
-}
-
-function getCarrier($data, $carrierId) {
-	$result  = "";
-	foreach($data['Carriers'] as $carrier) {
-		if($carrier['Id'] == $carrierId) {
-			$result = $carrier;
-			break;
-		}
-	}
-	return $result;
-}
-
-function getAgent($data, $agentId) {
-	$result = "";
-	foreach($data['Agents'] as $agent) {
-		if($agent['Id'] == $agentId) {
-			$result = $agent;
-			break;
-		}
-	}
-	return $result;
-}
-
-function getPlace($data, $placeId) {
-	$result = "";
-	foreach($data['Places'] as $place) {
-		if($place['Id'] == $placeId) {
-			$result = $place;
-			break;
-		}
-	}
-	return $result;
+	return false;
 }
 
 ?>
